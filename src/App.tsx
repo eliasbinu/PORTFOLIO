@@ -15,17 +15,19 @@ export const App: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
 
-  // Initialize Responsive, Tactile Inertia Scrolling (Snappy & Grounded)
+  // Initialize Ultra-Smooth Luxury Inertia Scrolling (Lenis)
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 0.85, // Snappier response (not overly floaty)
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -8 * t)),
+      duration: 1.25, // Silky luxury inertia glide
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
-      wheelMultiplier: 1.0,
-      touchMultiplier: 1.2,
+      wheelMultiplier: 0.9,
+      touchMultiplier: 1.5,
     });
+
+    (window as any).lenis = lenis;
 
     let rafId: number;
     function raf(time: number) {
@@ -35,7 +37,27 @@ export const App: React.FC = () => {
 
     rafId = requestAnimationFrame(raf);
 
+    // Global interceptor for smooth anchor clicks (#about, #works, #achievements, etc.)
+    const handleAnchorClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest('a[href^="#"]');
+      if (!target) return;
+      const href = target.getAttribute('href');
+      if (!href || href === '#') return;
+      const element = document.querySelector(href);
+      if (element) {
+        e.preventDefault();
+        lenis.scrollTo(element as HTMLElement, {
+          offset: 0,
+          duration: 1.4,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        });
+      }
+    };
+
+    document.addEventListener('click', handleAnchorClick);
+
     return () => {
+      document.removeEventListener('click', handleAnchorClick);
       cancelAnimationFrame(rafId);
       lenis.destroy();
     };

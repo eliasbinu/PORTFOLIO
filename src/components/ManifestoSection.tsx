@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
 
-const STATEMENT = `"The web is loud, and most brands just blend into it. I work across design, development, and branding all at once, building digital experiences that feel as sharp as they look. Nothing gets handed off between teams or lost in translation, because I build every layer myself. That's how the identity we create together actually holds up once it's live. If your brand deserves to be seen, let's make sure people can't look away."`;
+const STATEMENT = `"Software is everywhere, and most of it is built to grab attention, not to help anyone. I want to build the opposite: things that solve real problems for real people and still feel good to use. I'm early, a first-year CS student still learning, but I care about how things work underneath and how they feel on top. If you've got a problem worth solving, let's build something."`;
 
 interface WordProps {
   children: string;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ScrambleText } from './ScrambleText';
 import { BookFlipPreview } from './BookFlipPreview';
@@ -86,6 +86,7 @@ const PROJECTS: Project[] = [
 
 export const FeaturedWorks: React.FC = () => {
   const [hoveredProjectId, setHoveredProjectId] = useState<string | null>(null);
+  const [inViewProjects, setInViewProjects] = useState<Record<string, boolean>>({});
   const [isReaderOpen, setIsReaderOpen] = useState<boolean>(false);
   const [isTribuneRevealed, setIsTribuneRevealed] = useState<boolean>(false);
   const [isCampusRelayRevealed, setIsCampusRelayRevealed] = useState<boolean>(false);
@@ -102,8 +103,50 @@ export const FeaturedWorks: React.FC = () => {
   const [isFinterraModalOpen, setIsFinterraModalOpen] = useState<boolean>(false);
   const [selectedFinterraSlide, setSelectedFinterraSlide] = useState<number>(0);
 
+  // Scroll-driven auto reveal for project tiles, stories, and slide covers
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+    const timers: { [key: string]: ReturnType<typeof setTimeout> } = {};
+
+    PROJECTS.forEach((project) => {
+      const el = document.getElementById(`project-${project.id}`);
+      if (!el) return;
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            // Text and titles appear smoothly as the project enters view
+            setInViewProjects((prev) => ({ ...prev, [project.id]: true }));
+
+            // Deliberate pause before lifting the cover so user clearly sees the cover art
+            if (!timers[project.id]) {
+              timers[project.id] = setTimeout(() => {
+                if (project.id === 'campusrelay') setIsCampusRelayRevealed(true);
+                if (project.id === 'tribune') setIsTribuneRevealed(true);
+                if (project.id === 'fraudguard') setIsFraudGuardRevealed(true);
+                if (project.id === 'finterra') setIsFinterraRevealed(true);
+              }, 1600); // 1.6s delay: user clearly absorbs the cover before it glides open
+            }
+          }
+        },
+        {
+          threshold: 0.35, // Wait until 35% is well into view
+          rootMargin: '0px 0px -15% 0px',
+        }
+      );
+
+      observer.observe(el);
+      observers.push(observer);
+    });
+
+    return () => {
+      observers.forEach((obs) => obs.disconnect());
+      Object.values(timers).forEach((t) => clearTimeout(t));
+    };
+  }, []);
+
   return (
-    <section id="works" className="relative w-full min-h-screen bg-white text-[#0e0e0e] select-none pt-16 md:pt-24 pb-44 border-t border-black/5">
+    <section id="works" className="relative w-full min-h-screen bg-white text-[#0e0e0e] select-none pt-20 md:pt-28 lg:pt-36 pb-56 md:pb-64 lg:pb-72 border-t border-black/5">
       {/* Fullscreen Modals */}
       <NewspaperReaderModal isOpen={isReaderOpen} onClose={() => setIsReaderOpen(false)} />
       <CampusRelayModal
@@ -125,32 +168,34 @@ export const FeaturedWorks: React.FC = () => {
       <div className="w-full max-w-[94rem] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20">
         
         {/* Section Intro: FEATURED WORK with Scramble Animation */}
-        <div className="overflow-hidden pb-6 md:pb-8 text-left border-b border-black/10 mb-8 md:mb-12">
+        <div className="overflow-hidden pb-6 md:pb-8 text-left border-b border-black/10 mb-16 md:mb-24 lg:mb-32">
           <ScrambleText
             text="FEATURED WORK"
             startIndex={3}
             className="font-['Oswald'] font-black text-6xl sm:text-7xl md:text-8xl lg:text-[9.5rem] leading-[0.84] tracking-tight uppercase text-[#0e0e0e] select-none text-left"
           />
           <div className="flex items-center gap-2 mt-3 text-xs font-mono text-black/40 uppercase tracking-widest">
-            <span>[HOVER OVER TILES TO REVEAL DETAILS • CLICK TO VIEW LIVE APPS & PUBLICATIONS]</span>
+            <span>[SCROLL TO AUTO-REVEAL PROJECTS • CLICK TO LAUNCH LIVE PREVIEWS &amp; PUBLICATIONS]</span>
           </div>
         </div>
 
         {/* Alternating Project Cards Stack with Extreme Left/Right Alignment */}
-        <div className="space-y-32 md:space-y-40">
+        <div className="space-y-48 md:space-y-64 lg:space-y-80 xl:space-y-96">
           {PROJECTS.map((project) => {
             const isLeft = project.align === 'left';
             const isHovered = hoveredProjectId === project.id;
+            const isTextVisible = isHovered || !!inViewProjects[project.id];
 
             return (
               <div 
                 key={project.id} 
-                className="group relative w-full"
+                id={`project-${project.id}`}
+                className="group relative w-full scroll-mt-32"
               >
                 {/* 1. Main Project Heading Above the Block */}
                 <div 
-                  className={`transition-all duration-[1600ms] ease-[cubic-bezier(0.16,1,0.3,1)] mb-10 md:mb-14 lg:mb-16 text-left will-change-transform ${
-                    isHovered 
+                  className={`transition-all duration-[1800ms] ease-[cubic-bezier(0.16,1,0.3,1)] mb-12 md:mb-16 lg:mb-20 text-left will-change-transform ${
+                    isTextVisible 
                       ? 'opacity-100 translate-y-0 pointer-events-auto' 
                       : 'opacity-0 -translate-y-8 pointer-events-none'
                   }`}
@@ -171,11 +216,11 @@ export const FeaturedWorks: React.FC = () => {
                 <div 
                   className={`flex flex-col ${
                     isLeft ? 'lg:flex-row' : 'lg:flex-row-reverse'
-                  } items-center justify-between gap-10 md:gap-16 lg:gap-24 w-full`}
+                  } items-center justify-between gap-12 md:gap-16 lg:gap-20 xl:gap-28 w-full`}
                 >
                   {/* Visual Block Card */}
                   <div 
-                    className={`w-full ${project.isBook ? (isTribuneRevealed ? 'lg:w-[60%]' : 'lg:w-[56%]') : 'lg:w-[56%]'} shrink-0`}
+                    className={`w-full ${project.isBook ? (isTribuneRevealed ? 'lg:w-[58%]' : 'lg:w-[54%]') : 'lg:w-[54%]'} shrink-0`}
                     onMouseEnter={() => {
                       setHoveredProjectId(project.id);
                       if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(8);
@@ -198,7 +243,7 @@ export const FeaturedWorks: React.FC = () => {
                             scale: isCampusRelayRevealed ? 1 : 0.98,
                             opacity: isCampusRelayRevealed ? 1 : 0.8,
                           }}
-                          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+                          transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
                           className="w-full relative [transform:translateZ(0)] will-change-transform"
                         >
                           {/* Floating Close Button */}
@@ -214,7 +259,7 @@ export const FeaturedWorks: React.FC = () => {
                           </button>
 
                           <CampusRelayPreview
-                            isHovered={isHovered}
+                            isHovered={isHovered || isTextVisible}
                             onOpenFullscreen={(idx) => {
                               setSelectedScreenIdx(idx);
                               setIsCampusRelayModalOpen(true);
@@ -233,7 +278,7 @@ export const FeaturedWorks: React.FC = () => {
                                 y: '-102%',
                                 opacity: 0.98,
                                 transition: { 
-                                  duration: 1.1, 
+                                  duration: 2.5, 
                                   ease: [0.16, 1, 0.3, 1],
                                 } 
                               }}
@@ -311,7 +356,7 @@ export const FeaturedWorks: React.FC = () => {
                             scale: isTribuneRevealed ? 1 : 0.98,
                             opacity: isTribuneRevealed ? 1 : 0.8,
                           }}
-                          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+                          transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
                           className="w-full flex flex-col justify-between [transform:translateZ(0)] will-change-transform"
                         >
                           {/* Top Control Bar */}
@@ -332,7 +377,7 @@ export const FeaturedWorks: React.FC = () => {
                           </div>
 
                           <div onClick={() => setIsReaderOpen(true)} className="cursor-pointer">
-                            <BookFlipPreview isHovered={isHovered} />
+                            <BookFlipPreview isHovered={isHovered || isTextVisible} />
                           </div>
                         </motion.div>
 
@@ -347,7 +392,7 @@ export const FeaturedWorks: React.FC = () => {
                                 y: '-102%',
                                 opacity: 0.98,
                                 transition: { 
-                                  duration: 1.1, 
+                                  duration: 2.5, 
                                   ease: [0.16, 1, 0.3, 1],
                                 } 
                               }}
@@ -407,24 +452,13 @@ export const FeaturedWorks: React.FC = () => {
                             scale: isFraudGuardRevealed ? 1 : 0.98,
                             opacity: isFraudGuardRevealed ? 1 : 0.8,
                           }}
-                          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+                          transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
                           className="w-full relative [transform:translateZ(0)] will-change-transform"
                         >
-                          {/* Floating Close Button */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setIsFraudGuardRevealed(false);
-                            }}
-                            className="absolute top-3 right-16 z-40 hover:text-white bg-black/70 hover:bg-black px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-mono text-xs text-white/80 backdrop-blur-md border border-white/10 shadow-lg"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                            <span>CLOSE COVER</span>
-                          </button>
-
                           <FraudGuardPreview
-                            isHovered={isHovered}
+                            isHovered={isHovered || isTextVisible}
                             isPlaying={isFraudGuardRevealed}
+                            onCloseCover={() => setIsFraudGuardRevealed(false)}
                             onOpenFullscreen={(idx) => {
                               setSelectedFraudGuardSlide(idx);
                               setIsFraudGuardModalOpen(true);
@@ -443,7 +477,7 @@ export const FeaturedWorks: React.FC = () => {
                                 y: '-102%',
                                 opacity: 0.98,
                                 transition: { 
-                                  duration: 1.1, 
+                                  duration: 2.5, 
                                   ease: [0.16, 1, 0.3, 1],
                                 } 
                               }}
@@ -514,24 +548,13 @@ export const FeaturedWorks: React.FC = () => {
                             scale: isFinterraRevealed ? 1 : 0.98,
                             opacity: isFinterraRevealed ? 1 : 0.8,
                           }}
-                          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+                          transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
                           className="w-full relative [transform:translateZ(0)] will-change-transform"
                         >
-                          {/* Floating Close Button */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setIsFinterraRevealed(false);
-                            }}
-                            className="absolute top-3 right-16 z-40 hover:text-black bg-white/80 hover:bg-white px-3 py-1.5 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-mono text-xs text-black/80 backdrop-blur-md border border-black/10 shadow-sm"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                            <span>CLOSE COVER</span>
-                          </button>
-
                           <FinterraPreview
-                            isHovered={isHovered}
+                            isHovered={isHovered || isTextVisible}
                             isPlaying={isFinterraRevealed}
+                            onCloseCover={() => setIsFinterraRevealed(false)}
                             onOpenFullscreen={(idx) => {
                               setSelectedFinterraSlide(idx);
                               setIsFinterraModalOpen(true);
@@ -550,7 +573,7 @@ export const FeaturedWorks: React.FC = () => {
                                 y: '-102%',
                                 opacity: 0.98,
                                 transition: { 
-                                  duration: 1.1, 
+                                  duration: 2.5, 
                                   ease: [0.16, 1, 0.3, 1],
                                 } 
                               }}
@@ -618,10 +641,10 @@ export const FeaturedWorks: React.FC = () => {
                   </div>
 
                   {/* Text Description on Opposite Side */}
-                  <div className="w-full lg:w-[38%] min-h-[160px] flex flex-col justify-center text-left relative">
+                  <div className="w-full lg:w-[38%] xl:w-[36%] min-h-[160px] py-2 flex flex-col justify-center text-left relative">
                     <div
-                      className={`transition-all duration-[1600ms] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
-                        isHovered 
+                      className={`transition-all duration-[1800ms] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+                        isTextVisible 
                           ? 'opacity-100 translate-y-0 pointer-events-auto delay-75' 
                           : 'opacity-0 translate-y-8 pointer-events-none'
                       }`}
@@ -649,12 +672,12 @@ export const FeaturedWorks: React.FC = () => {
 
                     {/* Idle state subtle watermark */}
                     <div 
-                      className={`absolute inset-0 flex items-center transition-all duration-[1600ms] ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none ${
-                        isHovered ? 'opacity-0 -translate-y-4' : 'opacity-100 translate-y-0'
+                      className={`absolute inset-0 flex items-center transition-all duration-[1800ms] ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none ${
+                        isTextVisible ? 'opacity-0 -translate-y-4' : 'opacity-100 translate-y-0'
                       }`}
                     >
                       <span className="hidden lg:block text-black/20 font-mono text-xs tracking-widest uppercase">
-                        [HOVER TILE TO REVEAL STORY]
+                        [SCROLL DOWN TO REVEAL STORY]
                       </span>
                     </div>
                   </div>

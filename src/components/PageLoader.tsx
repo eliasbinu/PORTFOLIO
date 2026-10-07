@@ -6,12 +6,12 @@ interface PageLoaderProps {
 }
 
 const funPhrases = [
-  'Creative developer crafting digital experiences with motion and craft.',
-  'Architecting high-performance backend systems based in Kerala, India.',
-  'Designing and engineering digital products with a focus on code & motion.',
-  'Editorial design meets modern high-performance engineering.',
-  'Transforming ideas into sleek, kinetic, interactive web experiences.',
-  'Creative technologist building digital products for the modern web.',
+  'First-year CS student at VIT Vellore building software that solves real problems.',
+  'Moreover, beyond technical tools, what truly sets me apart is my leadership, strong communication, and radical honesty in execution.',
+  'Developing a strong foundation in programming and software engineering through hands-on work.',
+  'Building things that work solidly underneath and feel great to use.',
+  'First-year CS student at VIT Vellore, originally from Kerala.',
+  'Exploring web engineering, algorithms, and projects that serve a real purpose.',
 ];
 
 export const PageLoader: React.FC<PageLoaderProps> = ({ onComplete }) => {

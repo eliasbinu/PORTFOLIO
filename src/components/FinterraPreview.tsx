@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
+import { Play, Pause, ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-react';
 
 const SLIDES = [
   {
@@ -30,12 +30,14 @@ interface FinterraPreviewProps {
   isPlaying?: boolean;
   onTogglePlay?: (playing: boolean) => void;
   onOpenFullscreen?: (index: number) => void;
+  onCloseCover?: () => void;
 }
 
 export const FinterraPreview: React.FC<FinterraPreviewProps> = ({
   isPlaying = true,
   onTogglePlay,
   onOpenFullscreen,
+  onCloseCover,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [autoPlay, setAutoPlay] = useState(isPlaying);
@@ -94,8 +96,8 @@ export const FinterraPreview: React.FC<FinterraPreviewProps> = ({
   return (
     <div className="relative w-full aspect-[16/10] bg-[#f4f7f5] text-[#0e2a1e] rounded-xs overflow-hidden flex flex-col justify-between select-none shadow-2xl border border-black/5 group/player">
       
-      {/* 1. Top Minimal Controls (Visible on hover) */}
-      <div className="absolute top-0 inset-x-0 z-30 flex items-center justify-between p-3 bg-gradient-to-b from-white/95 via-white/80 to-transparent opacity-0 group-hover/player:opacity-100 transition-opacity duration-300">
+      {/* 1. Top Minimal Controls */}
+      <div className="absolute top-0 inset-x-0 z-30 flex items-center justify-between p-3 bg-gradient-to-b from-white/95 via-white/80 to-transparent">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#16a34a] animate-pulse" />
           <span className="font-mono text-[11px] uppercase tracking-widest text-[#0e2a1e] font-bold">
@@ -103,7 +105,7 @@ export const FinterraPreview: React.FC<FinterraPreviewProps> = ({
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <button
             onClick={handleTogglePlay}
             className="w-7 h-7 rounded-xs bg-white hover:bg-[#16a34a] text-[#0e2a1e] hover:text-white flex items-center justify-center transition-colors cursor-pointer border border-black/10 shadow-xs backdrop-blur-md"
@@ -122,6 +124,20 @@ export const FinterraPreview: React.FC<FinterraPreviewProps> = ({
               title="Fullscreen"
             >
               <Maximize2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {onCloseCover && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onCloseCover();
+              }}
+              className="bg-white/85 hover:bg-white px-2.5 py-1 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-mono text-xs text-black/80 hover:text-black backdrop-blur-md border border-black/10 shadow-sm"
+              title="Close Cover"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>CLOSE COVER</span>
             </button>
           )}
         </div>

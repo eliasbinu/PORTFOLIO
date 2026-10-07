@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
+import { Play, Pause, ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-react';
 
 const SLIDES = [
   {
@@ -30,12 +30,14 @@ interface FraudGuardPreviewProps {
   isPlaying?: boolean;
   onTogglePlay?: (playing: boolean) => void;
   onOpenFullscreen?: (index: number) => void;
+  onCloseCover?: () => void;
 }
 
 export const FraudGuardPreview: React.FC<FraudGuardPreviewProps> = ({
   isPlaying = true,
   onTogglePlay,
   onOpenFullscreen,
+  onCloseCover,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [autoPlay, setAutoPlay] = useState(isPlaying);
@@ -94,8 +96,8 @@ export const FraudGuardPreview: React.FC<FraudGuardPreviewProps> = ({
   return (
     <div className="relative w-full aspect-[16/10] bg-[#070709] text-white rounded-xs overflow-hidden flex flex-col justify-between select-none shadow-2xl group/player">
       
-      {/* 1. Top Minimal Controls (Visible on hover) */}
-      <div className="absolute top-0 inset-x-0 z-30 flex items-center justify-between p-3 bg-gradient-to-b from-black/80 to-transparent opacity-0 group-hover/player:opacity-100 transition-opacity duration-300">
+      {/* 1. Top Minimal Controls */}
+      <div className="absolute top-0 inset-x-0 z-30 flex items-center justify-between p-3 bg-gradient-to-b from-black/85 via-black/50 to-transparent">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse" />
           <span className="font-mono text-[11px] uppercase tracking-widest text-white/80 font-bold">
@@ -103,7 +105,7 @@ export const FraudGuardPreview: React.FC<FraudGuardPreviewProps> = ({
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <button
             onClick={handleTogglePlay}
             className="w-7 h-7 rounded-xs bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-colors cursor-pointer border border-white/10 backdrop-blur-md"
@@ -122,6 +124,20 @@ export const FraudGuardPreview: React.FC<FraudGuardPreviewProps> = ({
               title="Fullscreen"
             >
               <Maximize2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {onCloseCover && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onCloseCover();
+              }}
+              className="bg-black/70 hover:bg-black px-2.5 py-1 rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer font-mono text-xs text-white/80 hover:text-white backdrop-blur-md border border-white/10 shadow-sm"
+              title="Close Cover"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>CLOSE COVER</span>
             </button>
           )}
         </div>

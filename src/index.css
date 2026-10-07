@@ -22,6 +22,7 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     transition: background-color 0.7s ease-in-out;
+    overscroll-behavior-y: none;
   }
 
   @media (pointer: fine) {
@@ -37,6 +38,7 @@
 /* Lenis Smooth Inertia Scroll Styles */
 html.lenis, html.lenis body {
   height: auto;
+  overscroll-behavior: none;
 }
 
 .lenis.lenis-smooth {
