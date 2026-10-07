@@ -17,12 +17,9 @@ export const AboutSection: React.FC = () => {
 
         {/* Lead Bio Statement */}
         <div className="pt-6 md:pt-10 text-left">
-          <h3 className="font-sans font-light text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] tracking-tight leading-[1.28] text-[#0e0e0e] max-w-5xl text-left">
-          im very tired today to think more
-          
-
-
-          </h3>
+          <p className="font-sans font-light text-lg sm:text-xl md:text-2xl lg:text-[1.7rem] tracking-tight leading-[1.45] text-[#0e0e0e] max-w-4xl text-left">
+            I am a first-year Computer Science student at VIT Vellore, originally from Kerala. I am developing a foundation in programming and software engineering through hands-on work, which so far includes websites and hackathon projects. I am using this period to explore web development, algorithms and other areas of the field, and to work out where I can contribute most. I work best on a team, and I want to spend my time on projects that serve a real purpose.
+          </p>
         </div>
 
       </div>

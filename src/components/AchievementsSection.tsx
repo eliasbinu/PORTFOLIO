@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ScrambleText } from './ScrambleText';
-import { X, Maximize2, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 
 export interface AchievementItem {
   id: string;
@@ -128,11 +129,13 @@ const TROPHIES: TrophyItem[] = [
 
 export const AchievementsSection: React.FC = () => {
   const [selectedTrophyIndex, setSelectedTrophyIndex] = useState<number | null>(null);
-  const [showOriginal, setShowOriginal] = useState<boolean>(false);
 
-  // Keyboard navigation for lightbox
+  // Keyboard navigation & body lock for lightbox
   useEffect(() => {
     if (selectedTrophyIndex === null) return;
+
+    document.body.style.overflow = 'hidden';
+    document.body.classList.add('modal-open');
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setSelectedTrophyIndex(null);
@@ -145,7 +148,11 @@ export const AchievementsSection: React.FC = () => {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+      document.body.classList.remove('modal-open');
+    };
   }, [selectedTrophyIndex]);
 
   return (
@@ -203,18 +210,12 @@ export const AchievementsSection: React.FC = () => {
                 key={trophy.id}
                 onClick={() => {
                   setSelectedTrophyIndex(index);
-                  setShowOriginal(false);
                 }}
                 className="group/trophy relative bg-white rounded-2xl border border-black/10 hover:border-[#eab308] p-4 flex flex-col items-center justify-between aspect-[3/4] overflow-hidden cursor-pointer shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_14px_40px_rgba(234,179,8,0.22),0_0_24px_rgba(234,179,8,0.15)] transition-all duration-500 hover:-translate-y-2 select-none"
               >
                 {/* Soft ambient backlight pedestal on hover */}
                 <div className="absolute inset-0 bg-gradient-to-b from-neutral-50/60 via-white to-amber-50/20 group-hover/trophy:from-white group-hover/trophy:to-amber-100/35 transition-colors duration-500 pointer-events-none" />
                 <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-32 h-16 bg-[#eab308]/20 blur-xl opacity-0 group-hover/trophy:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
-                {/* Inspect button badge */}
-                <div className="absolute top-3 right-3 z-20 w-7 h-7 rounded-full bg-black/5 group-hover/trophy:bg-black group-hover/trophy:text-white flex items-center justify-center transition-all duration-300 opacity-60 group-hover/trophy:opacity-100 group-hover/trophy:scale-105">
-                  <Maximize2 className="w-3.5 h-3.5" />
-                </div>
 
                 {/* Trophy Cutout Image */}
                 <div className="relative z-10 w-full h-[78%] flex items-center justify-center p-2">
@@ -240,9 +241,9 @@ export const AchievementsSection: React.FC = () => {
       </div>
 
       {/* Lightbox Modal with Zoom & Next/Prev navigation */}
-      {selectedTrophyIndex !== null && (
+      {selectedTrophyIndex !== null && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
+          className="fixed inset-0 z-[99999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
           onClick={() => setSelectedTrophyIndex(null)}
         >
           <div
@@ -258,28 +259,19 @@ export const AchievementsSection: React.FC = () => {
                 </h4>
               </div>
 
-              <div className="flex items-center gap-2">
-                {/* Toggle Cutout vs Original */}
-                <button
-                  onClick={() => setShowOriginal(!showOriginal)}
-                  className="font-mono text-xs px-2.5 py-1 bg-black/5 hover:bg-black hover:text-white rounded-md transition-colors"
-                >
-                  {showOriginal ? 'Cutout View' : 'Original Photo'}
-                </button>
-
-                <button
-                  onClick={() => setSelectedTrophyIndex(null)}
-                  className="w-8 h-8 rounded-full bg-black/5 hover:bg-black hover:text-white flex items-center justify-center transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
+              <button
+                onClick={() => setSelectedTrophyIndex(null)}
+                className="w-9 h-9 rounded-full bg-black/5 hover:bg-black hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                title="Close (Esc)"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
             {/* Modal Image Stage */}
             <div className="relative w-full aspect-[4/3] bg-neutral-50 rounded-xl flex items-center justify-center p-4 sm:p-6 overflow-hidden border border-black/5">
               <img
-                src={showOriginal ? TROPHIES[selectedTrophyIndex].original : TROPHIES[selectedTrophyIndex].cutout}
+                src={TROPHIES[selectedTrophyIndex].cutout}
                 alt={TROPHIES[selectedTrophyIndex].title}
                 className="w-full h-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)]"
               />
@@ -290,9 +282,10 @@ export const AchievementsSection: React.FC = () => {
                   e.stopPropagation();
                   setSelectedTrophyIndex((prev) => (prev !== null ? (prev - 1 + TROPHIES.length) % TROPHIES.length : null));
                 }}
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-black hover:text-white shadow-md flex items-center justify-center transition-colors border border-black/10"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-black hover:text-white shadow-md flex items-center justify-center transition-colors border border-black/10 cursor-pointer"
+                title="Previous Trophy (←)"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-5 h-5" />
               </button>
 
               {/* Next Button */}
@@ -301,19 +294,15 @@ export const AchievementsSection: React.FC = () => {
                   e.stopPropagation();
                   setSelectedTrophyIndex((prev) => (prev !== null ? (prev + 1) % TROPHIES.length : null));
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-black hover:text-white shadow-md flex items-center justify-center transition-colors border border-black/10"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-black hover:text-white shadow-md flex items-center justify-center transition-colors border border-black/10 cursor-pointer"
+                title="Next Trophy (→)"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-5 h-5" />
               </button>
             </div>
-
-            {/* Modal Footer */}
-            <div className="flex items-center justify-between pt-3 mt-3 text-xs font-mono text-black/50">
-              <span>Use arrow keys (← →) or swipe to navigate</span>
-              <span>{selectedTrophyIndex + 1} / {TROPHIES.length}</span>
-            </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </section>
   );

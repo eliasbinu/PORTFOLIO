@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 export const CustomCursor: React.FC = () => {
@@ -44,22 +45,30 @@ export const CustomCursor: React.FC = () => {
     };
   }, [mouseX, mouseY, isVisible]);
 
-  if (!isVisible) return null;
+  if (!isVisible || typeof document === 'undefined') return null;
 
-  return (
+  return createPortal(
     <motion.div
       aria-hidden="true"
       animate={{
-        scale: isClicking ? 0.7 : 1,
+        scale: isClicking ? 0.75 : 1,
       }}
-      transition={{ duration: 0.1, ease: 'easeOut' }}
-      className="fixed top-0 left-0 w-3 h-3 bg-white mix-blend-difference pointer-events-none z-[99999]"
+      transition={{ duration: 0.08, ease: 'easeOut' }}
+      className="fixed top-0 left-0 pointer-events-none z-[99999999] will-change-transform"
       style={{
         x: springX,
         y: springY,
         translateX: '-50%',
         translateY: '-50%',
       }}
-    />
+    >
+      <div className="relative w-3.5 h-3.5">
+        {/* Primary Pixel Square with mix-blend-difference */}
+        <div className="w-full h-full bg-white mix-blend-difference" />
+        {/* High-contrast border ring guaranteeing visibility across all fullscreen image tiles & midtones */}
+        <div className="absolute inset-0 border border-black/60 shadow-[0_0_1px_rgba(255,255,255,0.95)] pointer-events-none" />
+      </div>
+    </motion.div>,
+    document.body
   );
 };

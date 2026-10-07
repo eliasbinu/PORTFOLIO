@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, BookOpen, Users } from 'lucide-react';
 
@@ -9,7 +10,7 @@ const READER_PAGES = [
   { id: 4, src: '/tribune-4.png', thumb: '/tribune-thumb-4.png', title: 'Special Articles & Poetry', subtitle: 'Malayalam Tribute' },
   { id: 5, src: '/tribune-5.png', thumb: '/tribune-thumb-5.png', title: 'PARASPARAM Alumni Meet', subtitle: 'Annual Alumni Re-unite Photo Archive' },
   { id: 6, src: '/tribune-6.png', thumb: '/tribune-thumb-6.png', title: 'Special Articles (Part 1)', subtitle: 'Making Waves — Meenakshi Subi' },
-  { id: 7, src: '/tribune-7.png', thumb: '/tribune-thumb-7.png', title: 'Special Articles (Part 2)', subtitle: 'Journey From Senator to Student' },
+  { id: 7, src: '/tribune-7.png', thumb: '/tribune-thumb-7.png', title: 'Journey From Senator to Student', subtitle: 'Special Articles (Part 2)' },
   { id: 8, src: '/tribune-8.png', thumb: '/tribune-thumb-8.png', title: 'Editorial Poem', subtitle: 'Poem by Sarah Paul' },
   { id: 9, src: '/tribune-9.png', thumb: '/tribune-thumb-9.png', title: 'Interschool Achievements (1)', subtitle: 'FRESCO, VISTA & CROSSROADS 2023' },
   { id: 10, src: '/tribune-10.png', thumb: '/tribune-thumb-10.png', title: 'Interschool Achievements (2)', subtitle: 'FABULA, TARANG & CHOICE CUP 2023' },
@@ -23,6 +24,17 @@ interface NewspaperReaderModalProps {
 
 export const NewspaperReaderModal: React.FC<NewspaperReaderModalProps> = ({ isOpen, onClose }) => {
   const [currentPage, setCurrentPage] = useState<number>(0);
+
+  // Lock body scroll and set modal-open class
+  useEffect(() => {
+    if (!isOpen) return;
+    document.body.style.overflow = 'hidden';
+    document.body.classList.add('modal-open');
+    return () => {
+      document.body.style.overflow = '';
+      document.body.classList.remove('modal-open');
+    };
+  }, [isOpen]);
 
   // Preload adjacent pages for instant zero-lag switching
   useEffect(() => {
@@ -51,28 +63,26 @@ export const NewspaperReaderModal: React.FC<NewspaperReaderModalProps> = ({ isOp
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    document.body.style.overflow = 'hidden';
-
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
     };
   }, [isOpen, onClose]);
 
   const nextPage = () => setCurrentPage((prev) => (prev < READER_PAGES.length - 1 ? prev + 1 : prev));
   const prevPage = () => setCurrentPage((prev) => (prev > 0 ? prev - 1 : prev));
 
-  return (
+  if (!isOpen || typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-[9999] flex flex-col items-center justify-between bg-black/92 backdrop-blur-md text-white select-none p-3 sm:p-5"
-          onClick={onClose}
-        >
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="fixed inset-0 z-[99999] flex flex-col items-center justify-between bg-black/92 backdrop-blur-md text-white select-none p-3 sm:p-5 pt-3 sm:pt-5"
+        onClick={onClose}
+      >
           {/* TOP BAR */}
           <div 
             className="w-full max-w-7xl flex items-center justify-between z-50 py-1.5 border-b border-white/10"
@@ -97,7 +107,7 @@ export const NewspaperReaderModal: React.FC<NewspaperReaderModalProps> = ({ isOp
 
               <button
                 onClick={onClose}
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white text-white hover:text-black flex items-center justify-center transition-colors shadow-lg cursor-pointer"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-black flex items-center justify-center transition-colors shadow-lg cursor-pointer"
                 title="Close Reader (Esc)"
               >
                 <X className="w-5 h-5" />
@@ -214,7 +224,7 @@ export const NewspaperReaderModal: React.FC<NewspaperReaderModalProps> = ({ isOp
           </div>
 
         </motion.div>
-      )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };

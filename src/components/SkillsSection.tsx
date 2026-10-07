@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ScrambleText } from './ScrambleText';
 import { 
@@ -228,6 +229,17 @@ export const SkillsSection: React.FC = () => {
     } catch (e) {}
   }, [statement]);
 
+  useEffect(() => {
+    if (isAddModalOpen) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [isAddModalOpen]);
+
   const handleSaveStatement = (e: React.FormEvent) => {
     e.preventDefault();
     if (!statementInput.trim()) return;
@@ -273,71 +285,74 @@ export const SkillsSection: React.FC = () => {
     <section id="skills" className="relative w-full bg-transparent text-[#0e0e0e] select-none pt-24 sm:pt-32 md:pt-40 pb-28 md:pb-44 border-t border-black/5">
       
       {/* ----------------- Quick Add Custom Skill Modal ----------------- */}
-      <AnimatePresence>
-        {isAddModalOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md"
-            onClick={() => setIsAddModalOpen(false)}
-          >
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {isAddModalOpen && (
             <motion.div
-              initial={{ scale: 0.94, y: 15 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.94, y: 15 }}
-              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full max-w-sm bg-white rounded-xs p-6 shadow-2xl border border-black/10 text-left text-[#0e0e0e]"
-              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md"
+              onClick={() => setIsAddModalOpen(false)}
             >
-              <div className="flex justify-between items-center pb-3 border-b border-black/10">
-                <h3 className="font-['Oswald'] font-black text-lg uppercase tracking-tight">
-                  ADD NEW SKILL
-                </h3>
-                <button
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="w-6 h-6 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center cursor-pointer text-black"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              <form onSubmit={handleAddSkill} className="space-y-3.5 pt-3">
-                <div>
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-black/60 mb-1">
-                    Skill Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. PYTHON, GRAPHQL..."
-                    value={newSkillName}
-                    onChange={(e) => setNewSkillName(e.target.value)}
-                    className="w-full px-3 py-2 bg-black/[0.03] border border-black/20 rounded-xs font-sans text-xs text-black focus:outline-none focus:border-black"
-                  />
-                </div>
-
-                <div className="pt-2 flex justify-end gap-2">
+              <motion.div
+                initial={{ scale: 0.94, y: 15 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.94, y: 15 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full max-w-sm bg-white rounded-xs p-6 shadow-2xl border border-black/10 text-left text-[#0e0e0e]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex justify-between items-center pb-3 border-b border-black/10">
+                  <h3 className="font-['Oswald'] font-black text-lg uppercase tracking-tight">
+                    ADD NEW SKILL
+                  </h3>
                   <button
-                    type="button"
                     onClick={() => setIsAddModalOpen(false)}
-                    className="px-3 py-1.5 text-xs font-mono uppercase text-black/60 hover:text-black cursor-pointer"
+                    className="w-6 h-6 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center cursor-pointer text-black"
                   >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="bg-black hover:bg-[#eab308] hover:text-black text-white font-mono text-xs uppercase font-bold tracking-widest px-4 py-1.5 rounded-xs flex items-center gap-1 shadow-md cursor-pointer transition-colors"
-                  >
-                    <Check className="w-3.5 h-3.5" />
-                    <span>Add</span>
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
-              </form>
+
+                <form onSubmit={handleAddSkill} className="space-y-3.5 pt-3">
+                  <div>
+                    <label className="block text-[11px] font-mono uppercase tracking-wider text-black/60 mb-1">
+                      Skill Name
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. PYTHON, GRAPHQL..."
+                      value={newSkillName}
+                      onChange={(e) => setNewSkillName(e.target.value)}
+                      className="w-full px-3 py-2 bg-black/[0.03] border border-black/20 rounded-xs font-sans text-xs text-black focus:outline-none focus:border-black"
+                    />
+                  </div>
+
+                  <div className="pt-2 flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddModalOpen(false)}
+                      className="px-3 py-1.5 text-xs font-mono uppercase text-black/60 hover:text-black cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="bg-black hover:bg-[#eab308] hover:text-black text-white font-mono text-xs uppercase font-bold tracking-widest px-4 py-1.5 rounded-xs flex items-center gap-1 shadow-md cursor-pointer transition-colors"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Add</span>
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
         

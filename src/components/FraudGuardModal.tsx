@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
 
@@ -32,6 +33,17 @@ export const FraudGuardModal: React.FC<FraudGuardModalProps> = ({
       setIsPlaying(true);
     }
   }, [isOpen, initialIndex]);
+
+  // Lock body scroll and set modal-open class
+  useEffect(() => {
+    if (!isOpen) return;
+    document.body.style.overflow = 'hidden';
+    document.body.classList.add('modal-open');
+    return () => {
+      document.body.style.overflow = '';
+      document.body.classList.remove('modal-open');
+    };
+  }, [isOpen]);
 
   // Keyboard navigation & ESC handler
   useEffect(() => {
@@ -71,11 +83,11 @@ export const FraudGuardModal: React.FC<FraudGuardModalProps> = ({
     setCurrentIndex((prev) => (prev - 1 + MODAL_SLIDES.length) % MODAL_SLIDES.length);
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
 
   const currentSlide = MODAL_SLIDES[currentIndex];
 
-  return (
+  return createPortal(
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
@@ -86,7 +98,7 @@ export const FraudGuardModal: React.FC<FraudGuardModalProps> = ({
       >
         {/* Top Header Bar */}
         <div 
-          className="w-full max-w-7xl mx-auto flex items-center justify-between z-20"
+          className="w-full max-w-7xl mx-auto flex items-center justify-between z-20 pt-2 sm:pt-4"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center gap-3">
@@ -96,7 +108,7 @@ export const FraudGuardModal: React.FC<FraudGuardModalProps> = ({
             </h2>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setIsPlaying((p) => !p)}
               className="px-3.5 py-1.5 rounded-xs bg-white/10 hover:bg-white/20 text-white font-mono text-xs uppercase flex items-center gap-2 transition-colors cursor-pointer"
@@ -107,7 +119,7 @@ export const FraudGuardModal: React.FC<FraudGuardModalProps> = ({
 
             <button
               onClick={onClose}
-              className="w-9 h-9 rounded-full bg-white/10 hover:bg-white text-white hover:text-black flex items-center justify-center transition-colors cursor-pointer"
+              className="w-10 h-10 rounded-full bg-white/15 hover:bg-white text-white hover:text-black flex items-center justify-center transition-colors cursor-pointer shadow-lg"
               title="Close Fullscreen (Esc)"
             >
               <X className="w-5 h-5" />
@@ -156,6 +168,7 @@ export const FraudGuardModal: React.FC<FraudGuardModalProps> = ({
         </div>
 
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };

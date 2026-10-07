@@ -36,7 +36,7 @@ const PROJECTS: Project[] = [
     title: 'CAMPUSRELAY',
     subtitle: 'Peer-to-Peer Campus Logistics & Delivery Platform',
     year: '2025',
-    description: 'An on-demand campus delivery ecosystem built for university students, featuring multi-lane order batching, gate-to-hostel peer routing, live runner dispatch, and credit-based micropayments.',
+    description: 'A peer-to-peer campus delivery ecosystem designed to eliminate the long walk to the main gate. Students already near the entrance can pick up food and package orders for peers heading to the same hostel blocks, delivering them seamlessly while earning cash rewards and incentives.',
     align: 'left',
     bgGradient: 'from-[#dfdfdf] via-[#cecece] to-[#a8a8a8]',
     accentColor: '#0e0e0e',

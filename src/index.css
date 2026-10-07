@@ -25,8 +25,11 @@
   }
 
   @media (pointer: fine) {
-    body, a, button, [role="button"], .cursor-pointer, .marquee-container {
+    *, *::before, *::after {
       cursor: none !important;
+    }
+    input, textarea {
+      cursor: text !important;
     }
   }
 }
@@ -170,6 +173,15 @@ html.lenis, html.lenis body {
 
 .glitch-layer-subtle-red-2 {
   animation: subtle-red-glitch-2 0.9s infinite ease-in-out;
+}
+
+/* Hide fixed website navigation header when any modal is open to prevent overlap with close buttons */
+body.modal-open header,
+body[style*="overflow: hidden"] header {
+  pointer-events: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.2s ease-out, visibility 0.2s ease-out;
 }
 
 
