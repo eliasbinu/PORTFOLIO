@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 
 export const ContactSection: React.FC = () => {
-  const email = "hello@eliasbinu.com";
-  const phone = "+91 98765 43210";
+  const email = "mynameiseliasbinu@gmail.com";
+  const phone = "+91 6238759084";
 
   // Magnetic Cursor Physics State for Email
   const [emailPos, setEmailPos] = useState({ x: 0, y: 0 });

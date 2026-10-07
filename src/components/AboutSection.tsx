@@ -18,7 +18,10 @@ export const AboutSection: React.FC = () => {
         {/* Lead Bio Statement */}
         <div className="pt-6 md:pt-10 text-left">
           <h3 className="font-sans font-light text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] tracking-tight leading-[1.28] text-[#0e0e0e] max-w-5xl text-left">
-            I am very sad that i didnt get into dev'jams with my team
+          im very tired today to think more
+          
+
+
           </h3>
         </div>
 

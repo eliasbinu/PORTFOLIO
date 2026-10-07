@@ -44,6 +44,15 @@ export const Header: React.FC<HeaderProps> = ({ isDark = false }) => {
         </a>
 
         <a 
+          href="#achievements" 
+          className="relative py-1 group overflow-hidden"
+        >
+          <span className="inline-block transition-transform duration-300 group-hover:-translate-y-full">Honors</span>
+          <span className="absolute left-0 top-full inline-block transition-transform duration-300 group-hover:-translate-y-full font-semibold">Honors</span>
+          <span className={`absolute bottom-0 left-0 w-0 h-[1.5px] ${underlineBg} transition-all duration-300 group-hover:w-full`}></span>
+        </a>
+
+        <a 
           href="#skills" 
           className="relative py-1 group overflow-hidden"
         >
@@ -80,7 +89,7 @@ export const Header: React.FC<HeaderProps> = ({ isDark = false }) => {
             <X size={20} />
           </button>
           
-          <div className="flex flex-col items-center gap-8 uppercase font-display text-5xl font-black">
+          <div className="flex flex-col items-center gap-7 uppercase font-display text-4xl sm:text-5xl font-black">
             <a 
               href="#about" 
               onClick={() => setMobileMenuOpen(false)}
@@ -96,18 +105,25 @@ export const Header: React.FC<HeaderProps> = ({ isDark = false }) => {
               02 Projects
             </a>
             <a 
+              href="#achievements" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="hover:italic hover:tracking-widest transition-all text-[#eab308]"
+            >
+              03 Honors
+            </a>
+            <a 
               href="#skills" 
               onClick={() => setMobileMenuOpen(false)}
               className="hover:italic hover:tracking-widest transition-all"
             >
-              03 Skills
+              04 Skills
             </a>
             <a 
               href="#contact" 
               onClick={() => setMobileMenuOpen(false)}
               className="hover:italic hover:tracking-widest transition-all"
             >
-              04 Contact
+              05 Contact
             </a>
           </div>
         </div>

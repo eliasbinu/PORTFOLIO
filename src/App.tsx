@@ -4,6 +4,7 @@ import { Header } from './components/Header';
 import { HeroSection } from './components/HeroSection';
 import { AboutSection } from './components/AboutSection';
 import { FeaturedWorks } from './components/FeaturedWorks';
+import { AchievementsSection } from './components/AchievementsSection';
 import { ManifestoSection } from './components/ManifestoSection';
 import { SkillsSection } from './components/SkillsSection';
 import { ContactSection } from './components/ContactSection';
@@ -78,6 +79,7 @@ export const App: React.FC = () => {
         <HeroSection isLoaded={isLoaded} />
         <AboutSection />
         <FeaturedWorks />
+        <AchievementsSection />
         <ManifestoSection />
         <SkillsSection />
         <ContactSection />
